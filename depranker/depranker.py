@@ -1,0 +1,111 @@
+#!/usr/bin/env python
+
+import numpy as np
+import os
+import sys
+import argparse
+from parseedgertoptags import *
+from parseroast import *
+from parseexpression import *
+from parsecnv import *
+
+__author__ = "Sanket S Desai"
+__license__ = "MIT"
+__version__ = "0.1"
+__email__ = "desai.sanket12@outlook.com"
+
+class DepRanker(object):
+    def __init__(self, toptagsfn, roastfn, exprsfn, cnvfn):
+        toptags=EdgeRTopTagsParser(toptagsfn)
+        roast=RoastParser(roastfn)
+        self.roast_scores_=roast.get_gene_roast_score_map()
+        self.toptags_scores_=toptags.get_gene_average_logfc_score_map()
+        expression=ExpressionParser(exprsfn)
+        copynumber=CopyNumberVariationParser(cnvfn)
+        topgenes=roast.get_roast_genes()
+        topgenesexpmap=expression.get_gene_expression_map(topgenes)
+        topgenescnvmap=copynumber.get_gene_cnv_map(topgenes)
+        self.expression_scores_=self.get_gene_score_map(topgenesexpmap,1)
+        self.cnv_scores_=self.get_gene_score_map(topgenescnvmap,1)
+        self.genes_=topgenes
+#        if len(self.roast_scores_)!=len(self.expression_scores_) or len(self.toptags_scores_) != len(self.roast_scores_) or len(self.roast_scores_) != len(cnv_scores_) :
+#            print("DepRanker error: please contact the author!!")
+#            sys.exit()
+
+    def get_gene_score_map(self, gene_value_map, direction): #direction defines if high should be considered high or low (as in case of pooled screen logFC)
+        grmap={}
+        if direction==1:
+            avglfcnp=np.array(gene_value_map.values()).astype(float)
+            avglfcnp_std= (avglfcnp - avglfcnp.min(axis=0)) / (avglfcnp.max(axis=0) - avglfcnp.min(axis=0))
+            avglfcnp_scaled = avglfcnp_std * (10 - 0) + 0
+            ind=0
+            for g in gene_value_map.keys():
+                grmap[g]=float(avglfcnp_scaled[ind])
+        elif direction==-1:
+            avglfcnp=np.array(gene_value_map.values()).astype(float)
+            avglfcnp_std= (avglfcnp - avglfcnp.min(axis=0)) / (avglfcnp.max(axis=0) - avglfcnp.min(axis=0))
+            avglfcnp_scaled = avglfcnp_std * (10 - 0) + 0
+            avglfcnp_scaled=10-avglfcnp_scaled #inverse is true
+            ind=0
+            for g in gene_value_map.keys():
+                grmap[g]=float(avglfcnp_scaled[ind])
+        else:
+            print("Direction of ranking required; please mention +1 or -1 !!")
+            sys.exit(0)
+        return grmap
+
+    def get_gene_impact_score(self, gene):
+        impscore=0
+        #currently only consideres scoring if the gene score is available for all the 4 types
+        if gene in self.roast_scores_:
+            try:
+                impscore=self.roast_scores_[gene]
+            except KeyError:
+                impscore=impscore+0
+        if gene in self.toptags_scores_:
+            try:
+                impscore=impscore+self.toptags_scores_[gene]
+            except KeyError:
+                impscore=impscore+0
+        if gene in self.expression_scores_:
+            try:
+                impscore=impscore+self.expression_scores_[gene]
+            except KeyError:
+                impscore=impscore+0
+        if gene in self.cnv_scores_:
+            try:
+                impscore=impscore+self.cnv_scores_[gene]
+            except KeyError:
+                impscore=impscore+0
+        return impscore
+
+    def write_score_table(self, fn):
+        fo=open(fn,'w')
+        fo.write("Gene\tRoastScore\tPooledTopTagScore\tExpressionScore\tCNVScore\tImpactScore\n")
+        for g in self.genes_:
+            try:
+                print([g,self.roast_scores_[g],self.toptags_scores_[g],self.expression_scores_[g],self.cnv_scores_[g],self.get_gene_impact_score(g)])
+                fo.write("%s\t%f\t%f\t%f\t%f\t%f\n" %(g,self.roast_scores_[g],self.toptags_scores_[g],self.expression_scores_[g],self.cnv_scores_[g],self.get_gene_impact_score(g)))
+            except KeyError as ke:
+                print("Impact Score cannot be computed for gene: %s" %(g))
+        fo.close()
+
+def main():
+    aparser=argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description= '''DepRanker: A gene impact score calculator (prioritization method) for RNAi / CRISPR screen results
+Developed by Dutt lab
+Version v0.1.0''')
+    aparser.add_argument('-roast', action='store', dest='roast_result_file', help='Roast result file')
+    aparser.add_argument('-toptags', action='store', dest='edgeR_toptags_file', help='EdgeR toptags result file')
+    aparser.add_argument('-exprs', action='store', dest='expression_file', help='Gene expression file')
+    aparser.add_argument('-cnv', action='store', dest='copy_number_variation_file', help='Copy number variation file')
+    aparser.add_argument('-out', action='store', dest='output_file', help='Ouput file')
+    pargs=aparser.parse_args()
+    try:
+        depranks=DepRanker(pargs.edgeR_toptags_file, pargs.roast_result_file, pargs.expression_file, pargs.copy_number_variation_file)
+        depranks.write_score_table(pargs.output_file)
+    except TypeError as t:
+        aparser.print_help()
+        print(t)
+
+if __name__=="__main__":
+    main()
