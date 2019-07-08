@@ -41,6 +41,7 @@ class DepRanker(object):
             ind=0
             for g in gene_value_map.keys():
                 grmap[g]=float(avglfcnp_scaled[ind])
+                ind=ind+1
         elif direction==-1:
             avglfcnp=np.array(gene_value_map.values()).astype(float)
             avglfcnp_std= (avglfcnp - avglfcnp.min(axis=0)) / (avglfcnp.max(axis=0) - avglfcnp.min(axis=0))
@@ -49,6 +50,7 @@ class DepRanker(object):
             ind=0
             for g in gene_value_map.keys():
                 grmap[g]=float(avglfcnp_scaled[ind])
+                ind=ind+1
         else:
             print("Direction of ranking required; please mention +1 or -1 !!")
             sys.exit(0)
@@ -84,7 +86,7 @@ class DepRanker(object):
         fo.write("Gene\tRoastScore\tPooledTopTagScore\tExpressionScore\tCNVScore\tImpactScore\n")
         for g in self.genes_:
             try:
-                print([g,self.roast_scores_[g],self.toptags_scores_[g],self.expression_scores_[g],self.cnv_scores_[g],self.get_gene_impact_score(g)])
+                #print([g,self.roast_scores_[g],self.toptags_scores_[g],self.expression_scores_[g],self.cnv_scores_[g],self.get_gene_impact_score(g)])
                 fo.write("%s\t%f\t%f\t%f\t%f\t%f\n" %(g,self.roast_scores_[g],self.toptags_scores_[g],self.expression_scores_[g],self.cnv_scores_[g],self.get_gene_impact_score(g)))
             except KeyError as ke:
                 print("Impact Score cannot be computed for gene: %s" %(g))

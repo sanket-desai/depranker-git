@@ -40,9 +40,12 @@ class CopyNumberVariationParser(object):
             try:
                 gem[g]=self.gene_cnv_map_[g]
             except KeyError:
-                print("Gene name \'%s\' not found in the CNV dataset!! Please check!!" %(g))
+                #print("Gene name \'%s\' not found in the CNV dataset!! Please check!!" %(g))
                 pass
         return gem
+
+    #def get_gene_cnv_map(self):
+    #    return self.gene_cnv_map_
 
     def get_gene_cnv_score_map(self):
         gemap=self.get_gene_cnv_map()
@@ -54,4 +57,13 @@ class CopyNumberVariationParser(object):
         ind=0
         for g in gemap.keys():
             grs_map[g]=float(gexpnp_scaled[ind])
+            ind=ind+1
         return grs_map
+'''
+def main():
+    cnvp=CopyNumberVariationParser(sys.argv[1])
+    print(cnvp.get_gene_cnv_score_map())
+
+if __name__=="__main__":
+    main()
+'''

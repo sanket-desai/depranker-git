@@ -96,4 +96,5 @@ class EdgeRTopTagsParser(object):
         ind=0
         for g in gene_avlfc.keys():
             grs_map[g]=float(avglfcnp_scaled[ind])
+            ind=ind+1
         return grs_map

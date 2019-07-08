@@ -40,7 +40,7 @@ class ExpressionParser(object):
             try:
                 gem[g]=self.gene_expr_map_[g]
             except KeyError:
-                print("Gene name \'%s\' not found in the expression dataset!! Please check!!" %(g))
+                #print("Gene name \'%s\' not found in the expression dataset!! Please check!!" %(g))
                 pass
         return gem
 
@@ -54,4 +54,5 @@ class ExpressionParser(object):
         ind=0
         for g in gemap.keys():
             grs_map[g]=float(gexpnp_scaled[ind])
+            ind=ind+1
         return grs_map

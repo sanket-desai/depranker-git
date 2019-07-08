@@ -154,4 +154,5 @@ class RoastParser(object):
         ind=0
         for g in mgene_rank.keys():
             grs_map[g]=float(ranksnp_scaled[ind])
+            ind=ind+1
         return grs_map
