@@ -9,10 +9,10 @@ __license__ = "MIT"
 __version__ = "0.1"
 __email__ = "desai.sanket12@outlook.com"
 
-class CopyNumberVariationParser(object):
+class MethylationParser(object):
     def __init__(self, efn):
         if not os.path.exists(efn) and not os.path.isfile(efn):
-            print("Copy number variation file %s not found or unreadable, please check!!" %(enf))
+            print("Methylation beta value file %s not found or unreadable, please check!!" %(enf))
             sys.exit(0)
         efi=open(efn)
         self.header_=efi.readline().strip().replace('\"','').split("\t")
@@ -22,7 +22,7 @@ class CopyNumberVariationParser(object):
             self.gene_cnv_map_[sline[0]]=sline[1]
         efi.close()
 
-    def get_copynumbervariation(self, gene):
+    def get_methylation_beta_values(self, gene):
         try:
             return self.gene_cnv_map_[gene]
         except ValueError :
@@ -31,10 +31,10 @@ class CopyNumberVariationParser(object):
     def get_number_of_genes(self):
         return len(self.gene_cnv_map_)
 
-    def get_gene_cnv_map(self):
+    def get_gene_betavalue_map(self):
         return self.gene_cnv_map_
 
-    def get_gene_cnv_map(self, genelist): #given a gene list extract the values
+    def get_gene_betavalue_map(self, genelist): #given a gene list extract the values
         gem={}
         for g in genelist:
             try:
@@ -47,8 +47,8 @@ class CopyNumberVariationParser(object):
     #def get_gene_cnv_map(self):
     #    return self.gene_cnv_map_
 
-    def get_gene_cnv_score_map(self):
-        gemap=self.get_gene_cnv_map()
+    def get_gene_methylation_score_map(self):
+        gemap=self.get_gene_betavalue_map()
         gexpnp=np.array(gemap.values()).astype(float)
         gexpnp_std= (gexpnp - gexpnp.min(axis=0)) / (gexpnp.max(axis=0) - gexpnp.min(axis=0))
         gexpnp_scaled = gexpnp_std * (10 - 0) + 0
