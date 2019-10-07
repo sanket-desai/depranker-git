@@ -9,6 +9,6 @@ setup(name='DepRanker',
       author_email='desai,sanket12@gmail.com',
       url='https://github.com/sanket-desai/depranker-git',
       license = "MIT",
-      long_description=open('README.md').read(),
-      install_requires=['numpy']
+      long_description=open('README.md').read()
+      #nstall_requires=['numpy']
      )
