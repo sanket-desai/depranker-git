@@ -57,7 +57,7 @@ optional arguments:
   -out OUTPUT_FILE      Ouput file
 
 ```
-###Example dataset
+### Example dataset
 From within the downloaded DepRanker git repository, the main script can be executed on the test dataset provided with the package as follows:
 ```
 cd depranker-git
