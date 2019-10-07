@@ -13,7 +13,7 @@ DepRanker accepts following input files:
 -	DEMETER gene score file
 -	Expression file
 -	Copy number variation file
--	Methylation file 
+-	Methylation file
 
 
 ### Availability and Implementation
@@ -25,11 +25,15 @@ DepRanker package depends on <i>[Numpy](https://numpy.org/)</i> python package m
 ```
 python -m pip install --user numpy
 ```
-Installation of DepRanker package can be performed by following standard installation process. Go to the package directory (where setup.py file is placed) and run the following command:
+Download the package using the <i>git clone</i> command as follows:
+```
+git clone git@github.com:sanket-desai/depranker-git.git .
+```  
+Moving into the DepRanker GIT repository, installation can be performed by following standard installation process. Go to the package directory (where setup.py file is placed) and run the following command:
 ```
 sudo python setup.py
 ```
-User will be indicated upon the successfull installation of the package on the terminal.
+User will be indicated upon the successful installation of the package on the terminal.
 ## Usage
 ```
 usage: depranker.py [-h] [-roast ROAST_RESULT_FILE] [-demeter DEMETER_SCORE_FILE]
@@ -57,6 +61,9 @@ optional arguments:
   -out OUTPUT_FILE      Ouput file
 
 ```
+###Example dataset
+```
 
+```
 ### License
 This project is licensed under the MIT license.
