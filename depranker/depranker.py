@@ -40,18 +40,25 @@ class DepRanker(object):
     #if direction 1, defined as lower is lower, elif direction -1, lower is higher: In general higher ranks are better
     def get_gene_rank_map(self, gene_value_map, direction=1):
         grmap={}
-        gvals=np.array(gene_value_map.values()).astype(float)
+        gvals=np.array(list(gene_value_map.values())).astype(float)
+        #print(gvals)
         if direction==1:
-            gvalranks=rankdata(np.array(gvals))
+            print("Inside rank map method! - direction 1")
+            gvalranks=rankdata(gvals)
             ind=0
             for g in gene_value_map.keys():
-                grmap[g]=float(gvalranks[ind])
+                print(gvalranks[ind])
+                #grmap[g]=float(gvalranks[ind])
+                grmap[g]=gvalranks[ind]
                 ind=ind+1
         elif direction==-1:
-            gvalranks=rankdata(- np.array(gvals))
+            print("Inside rank map method! - direction 2")
+            gvalranks=rankdata(- gvals)
             ind=0
             for g in gene_value_map.keys():
-                grmap[g]=float(gvalranks[ind])
+                print(gvalranks[ind])
+                #grmap[g]=float(gvalranks[ind])
+                grmap[g]=gvalranks[ind]
                 ind=ind+1
         else:
             print("Direction of ranking required; please mention 1 or -1 !!")
