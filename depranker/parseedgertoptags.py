@@ -6,8 +6,8 @@ import sys
 
 __author__ = "Sanket S Desai"
 __license__ = "MIT"
-__version__ = "0.1"
-__email__ = "desai.sanket12@outlook.com"
+__version__ = "0.2"
+__email__ = "desai.sanket12@gmail.com"
 '''
 EdgeRTopTagsParser - class to parse the top tag results as given output by edgeR package. ProcessHairpin Function
 Format Description - as shown in the example below (10 columns including the ID repeated twice at every record)

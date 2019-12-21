@@ -2,7 +2,7 @@
 
 Developed by Dutt lab
 
-Version v0.1.0
+Version v0.2.0
 
 ### Features
 **DepRanker works downstream to the shRNA analysis pipelines like edgeR and accomodates information from gene prioritization tools like ROAST and DEMETER. It integrates gene expression, copy number variation and methylation data to rank / prioritize genes from pooled screen data.**
@@ -29,7 +29,7 @@ Download the package using the <i>git clone</i> command as follows:
 ```
 git clone git@github.com:sanket-desai/depranker-git.git .
 ```  
-Moving into the DepRanker GIT repository, the DepRanker program can be directory run as a python script (2.7 compatible).
+Moving into the DepRanker GIT repository, the DepRanker program can be directly run as a python script (2.7 / 3.xx compatible).
 ## Usage
 ```
 usage: python depranker.py [-h] [-roast ROAST_RESULT_FILE] [-demeter DEMETER_SCORE_FILE]
