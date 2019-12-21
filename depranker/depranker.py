@@ -47,7 +47,7 @@ class DepRanker(object):
             for g in gene_value_map.keys():
                 grmap[g]=float(gvalranks[ind])
                 ind=ind+1
-        elif direction=-1:
+        elif direction==-1:
             gvalranks=rankdata(- np.array(gvals))
             ind=0
             for g in gene_value_map.keys():
