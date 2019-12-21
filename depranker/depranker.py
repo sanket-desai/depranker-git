@@ -40,8 +40,8 @@ class DepRanker(object):
     #if direction 1, defined as lower is lower, elif direction -1, lower is higher: In general higher ranks are better
     def get_gene_rank_map(self, gene_value_map, direction=1):
         grmap={}
+        gvals=np.array(gene_value_map.values()).astype(float)
         if direction==1:
-            gvals=np.array(gene_value_map.values()).astype(float)
             gvalranks=rankdata(np.array(gvals))
             ind=0
             for g in gene_value_map.keys():
