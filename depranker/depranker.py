@@ -21,14 +21,15 @@ class DepRanker(object):
         roast=RoastParser(roastfn)
         self.roast_ranks_= self.get_gene_rank_map(roast.get_gene_rank_map(),-1)
         self.roast_scores_=roast.get_gene_roast_score_map()
-        self.toptags_ranks_= self.get_gene_rank_map(toptags.get_gene_average_logfc(), -1)
+        self.toptags_ranks_= self.get_gene_rank_map(toptags.get_gene_average_logfc_map(), -1)
         self.toptags_scores_=toptags.get_gene_average_logfc_score_map()
         expression=ExpressionParser(exprsfn)
         copynumber=CopyNumberVariationParser(cnvfn)
         topgenes=roast.get_roast_genes()
         topgenesexpmap=expression.get_gene_expression_map(topgenes)
         topgenescnvmap=copynumber.get_gene_cnv_map(topgenes)
-        self.expression_ranks_=self.get_gene_rank_map(topgenes, 1)
+        print("entering gene expression and cnv")
+        self.expression_ranks_=self.get_gene_rank_map(topgenesexpmap, 1)
         self.expression_scores_=self.get_gene_score_map(topgenesexpmap,1)
         self.cnv_ranks_=self.get_gene_rank_map(topgenescnvmap, 1)
         self.cnv_scores_=self.get_gene_score_map(topgenescnvmap,1)
@@ -43,20 +44,16 @@ class DepRanker(object):
         gvals=np.array(list(gene_value_map.values())).astype(float)
         #print(gvals)
         if direction==1:
-            print("Inside rank map method! - direction 1")
             gvalranks=rankdata(gvals)
             ind=0
             for g in gene_value_map.keys():
-                print(gvalranks[ind])
                 #grmap[g]=float(gvalranks[ind])
                 grmap[g]=gvalranks[ind]
                 ind=ind+1
         elif direction==-1:
-            print("Inside rank map method! - direction 2")
             gvalranks=rankdata(- gvals)
             ind=0
             for g in gene_value_map.keys():
-                print(gvalranks[ind])
                 #grmap[g]=float(gvalranks[ind])
                 grmap[g]=gvalranks[ind]
                 ind=ind+1
@@ -68,21 +65,23 @@ class DepRanker(object):
     def get_gene_score_map(self, gene_value_map, direction): #direction defines if high should be considered high or low (as in case of pooled screen logFC)
         grmap={}
         if direction==1:
-            avglfcnp=np.array(gene_value_map.values()).astype(float)
+            avglfcnp=np.array( list(gene_value_map.values()) ).astype(float)
             avglfcnp_std= (avglfcnp - avglfcnp.min(axis=0)) / (avglfcnp.max(axis=0) - avglfcnp.min(axis=0))
             avglfcnp_scaled = avglfcnp_std * (10 - 0) + 0
             ind=0
             for g in gene_value_map.keys():
-                grmap[g]=float(avglfcnp_scaled[ind])
+                #grmap[g]=float(avglfcnp_scaled[ind])
+                grmap[g]=avglfcnp_scaled[ind]
                 ind=ind+1
         elif direction==-1:
-            avglfcnp=np.array(gene_value_map.values()).astype(float)
+            avglfcnp=np.array( list(gene_value_map.values()) ).astype(float)
             avglfcnp_std= (avglfcnp - avglfcnp.min(axis=0)) / (avglfcnp.max(axis=0) - avglfcnp.min(axis=0))
             avglfcnp_scaled = avglfcnp_std * (10 - 0) + 0
             avglfcnp_scaled=10-avglfcnp_scaled #inverse is true
             ind=0
             for g in gene_value_map.keys():
-                grmap[g]=float(avglfcnp_scaled[ind])
+                #grmap[g]=float(avglfcnp_scaled[ind])
+                grmap[g]=avglfcnp_scaled[ind]
                 ind=ind+1
         else:
             print("Direction of ranking required; please mention +1 or -1 !!")
@@ -93,22 +92,22 @@ class DepRanker(object):
         rimpscore=0
         if gene in self.roast_ranks_:
             try:
-                rimpscore=self.roast_ranks_[gene]
+                rimpscore=self.roast_ranks_[gene]+rimpscore
             except KeyError:
                 rimpscore=rimpscore+0
         if gene in self.toptags_ranks_:
             try:
-                rimpscore=self.toptags_ranks_[gene]
+                rimpscore=self.toptags_ranks_[gene]+rimpscore
             except KeyError:
                 rimpscore=rimpscore+0
         if gene in self.expression_ranks_:
             try:
-                rimpscore=self.expression_ranks_[gene]
+                rimpscore=self.expression_ranks_[gene]+rimpscore
             except KeyError:
                 rimpscore=rimpscore+0
         if gene in self.cnv_ranks_:
             try:
-                rimpscore=self.cnv_ranks_[gene]
+                rimpscore=self.cnv_ranks_[gene]+rimpscore
             except KeyError:
                 rimpscore=rimpscore+0
         return rimpscore
@@ -148,7 +147,7 @@ class DepRanker(object):
             except KeyError as ke:
                 print("Impact Score cannot be computed for gene: %s" %(g))
         fo.close()
-    def write_score_table(self, fn):
+    def write_rank_table(self, fn):
         fo=open(fn,'w')
         fo.write("Gene\tRoastRankScore\tPooledTopTagRankScore\tExpressionRankScore\tCNVRankScore\tRankImpactScore\n")
         for g in self.genes_:
@@ -171,7 +170,7 @@ Version v0.1.0''')
     pargs=aparser.parse_args()
     try:
         depranks=DepRanker(pargs.edgeR_toptags_file, pargs.roast_result_file, pargs.expression_file, pargs.copy_number_variation_file)
-        depranks.write_score_table(pargs.output_file)
+        depranks.write_rank_table(pargs.output_file)
     except TypeError as t:
         aparser.print_help()
         print(t)

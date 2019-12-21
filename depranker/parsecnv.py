@@ -49,7 +49,7 @@ class CopyNumberVariationParser(object):
 
     def get_gene_cnv_score_map(self):
         gemap=self.get_gene_cnv_map()
-        gexpnp=np.array(gemap.values()).astype(float)
+        gexpnp=np.array( list(gemap.values()) ).astype(float)
         gexpnp_std= (gexpnp - gexpnp.min(axis=0)) / (gexpnp.max(axis=0) - gexpnp.min(axis=0))
         gexpnp_scaled = gexpnp_std * (10 - 0) + 0
         #gexpnp_scaled=10-avglfcnp_scaled #inverse is true
