@@ -94,8 +94,15 @@ class EdgeRTopTagsParser(object):
             gene_avlfc[g]=av
         return gene_avlfc
 
+    def get_gene_average_logfc_map(self, genes):
+        gene_avlfc={}
+        for g in genes:
+            av= float(self.get_gene_average_logfc(g))
+            gene_avlfc[g]=av
+        return gene_avlfc
+
     def get_gene_average_logfc_score_map(self):
-        gene_avlfc=self.get_gene_average_logfc_map()
+        gene_avlfc=self.get_gene_average_logfc_map(self.get_unique_genes())
         avglfcnp=np.array(  list(gene_avlfc.values()) ).astype(float)
         avglfcnp_std= (avglfcnp - avglfcnp.min(axis=0)) / (avglfcnp.max(axis=0) - avglfcnp.min(axis=0))
         avglfcnp_scaled = avglfcnp_std * (10 - 0) + 0

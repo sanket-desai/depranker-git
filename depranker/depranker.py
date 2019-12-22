@@ -16,22 +16,25 @@ __version__ = "0.2.0"
 __email__ = "desai.sanket12@gmail.com"
 #Smaller ranks are better
 class DepRanker(object):
-    def __init__(self, toptagsfn, roastfn, exprsfn, cnvfn):
+    def __init__(self, toptagsfn, roastfn, exprsfn, cnvfn, minshrnarepr):
         toptags=EdgeRTopTagsParser(toptagsfn)
         roast=RoastParser(roastfn)
-        self.roast_ranks_= self.get_gene_rank_map(roast.get_gene_rank_map(),-1)
+        self.roast_ranks_= self.get_gene_rank_map(roast.get_gene_rank_map(minshrnarepr, "Down", "pvalue"),-1)
         self.roast_scores_=roast.get_gene_roast_score_map()
-        psig_gene_avglfc_map=toptags.get_pvalue_significant_gene_average_logfc_map(0.05)
-        toptag_rank_input_gene_avglfc={}
-        topgenes=[] #top genes by roast defined as down/mingene 3/pval sorted and toptag pval significant 0.05
-        for g in self.roast_ranks_.keys():
-            try:
-                toptag_rank_input_gene_avglfc[g]=psig_gene_avglfc_map[g]
-                topgenes.append(g)
-            except KeyError:
-                pass
+        #psig_gene_avglfc_map=toptags.get_pvalue_significant_gene_average_logfc_map(0.05)
+        #toptag_rank_input_gene_avglfc={}
+        #topgenes=[] #top genes by roast defined as down/mingene 3/pval sorted and toptag pval significant 0.05
+        topgenes=list(self.roast_ranks_.keys())
+        #for g in self.roast_ranks_.keys():
+        #    try:
+        #        toptag_rank_input_gene_avglfc[g]=psig_gene_avglfc_map[g]
+        #        topgenes.append(g)
+        #    except KeyError:
+        #        pass
         #self.toptags_ranks_= self.get_gene_rank_map(toptags.get_pvalue_significant_gene_average_logfc_map(0.05), -1)
-        self.toptags_ranks_= self.get_gene_rank_map(toptag_rank_input_gene_avglfc, -1)
+        #print(topgenes)
+        self.toptags_ranks_=self.get_gene_rank_map( toptags.get_gene_average_logfc_map(topgenes), -1)
+        #self.toptags_ranks_= self.get_gene_rank_map(toptag_rank_input_gene_avglfc, -1)
         self.toptags_scores_=toptags.get_gene_average_logfc_score_map()
         expression=ExpressionParser(exprsfn)
         copynumber=CopyNumberVariationParser(cnvfn)
@@ -176,13 +179,16 @@ Version v0.2.0''')
     aparser.add_argument('-exprs', action='store', dest='expression_file', help='Gene expression file')
     aparser.add_argument('-cnv', action='store', dest='copy_number_variation_file', help='Copy number variation file')
     aparser.add_argument('-out', action='store', dest='output_file', help='Ouput file')
+    aparser.add_argument('-min_shrna', action='store', dest='mingenes', help='Minimum number of shRNA representation (integer)')
+
     pargs=aparser.parse_args()
     try:
-        depranks=DepRanker(pargs.edgeR_toptags_file, pargs.roast_result_file, pargs.expression_file, pargs.copy_number_variation_file)
+        depranks=DepRanker(pargs.edgeR_toptags_file, pargs.roast_result_file, pargs.expression_file, pargs.copy_number_variation_file, int(pargs.mingenes))
         depranks.write_rank_table(pargs.output_file)
     except TypeError as t:
         aparser.print_help()
-        print(t)
+        print("\n")
+        #print(t)
 
 if __name__=="__main__":
     main()
