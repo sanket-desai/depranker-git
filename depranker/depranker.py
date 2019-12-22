@@ -12,7 +12,7 @@ from parsecnv import *
 
 __author__ = "Sanket S Desai"
 __license__ = "MIT"
-__version__ = "0.2"
+__version__ = "0.2.0"
 __email__ = "desai.sanket12@gmail.com"
 #Smaller ranks are better
 class DepRanker(object):
