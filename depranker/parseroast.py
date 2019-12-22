@@ -6,8 +6,8 @@ import sys
 
 __author__ = "Sanket S Desai"
 __license__ = "MIT"
-__version__ = "0.1"
-__email__ = "desai.sanket12@outlook.com"
+__version__ = "0.2"
+__email__ = "desai.sanket12@gmail.com"
 '''
 RoastParser - class to parse the ROAST (DOI: 10.1093/bioinformatics/btq401) output file (a bioconductor package)
 Format description: Example record below
@@ -126,7 +126,7 @@ class RoastParser(object):
 #        ngenes=npmat[range(len(npmat)),1].astype(np.int)
 #        return self.npmat[ngenes >= mingenes,]
 
-    def get_gene_rank_map(self, mingene=2, direction="Down", sorttype="pvalue"):
+    def get_gene_rank_map(self, mingene=3, direction="Down", sorttype="pvalue"):
     #Rank of the gene in a screen is based on NGENE, Direction and pvalue sorted
         filteredmat=self.get_records_as_npmatrix_with_minimum_ngenes(mingene)
         if direction=="Down":
@@ -144,9 +144,9 @@ class RoastParser(object):
             rnk=rnk+1
         return gene_rank
     #Return a normalized (scale 0-10) score for individual genes
-    def get_gene_roast_score_map(self, mingene=2, direction="Down", sorttype="pvalue"):
+    def get_gene_roast_score_map(self, mingene=3, direction="Down", sorttype="pvalue"):
         mgene_rank=self.get_gene_rank_map(mingene, direction, sorttype)
-        ranksnp=np.array(mgene_rank.values()).astype(float)
+        ranksnp=np.array( list(mgene_rank.values())).astype(float)
         ranksnp_std= (ranksnp - ranksnp.min(axis=0)) / (ranksnp.max(axis=0) - ranksnp.min(axis=0))
         ranksnp_scaled = ranksnp_std * (10 - 0) + 0
         ranksnp_scaled=10-ranksnp_scaled #inverse is true

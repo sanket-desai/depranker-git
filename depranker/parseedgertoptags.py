@@ -6,8 +6,8 @@ import sys
 
 __author__ = "Sanket S Desai"
 __license__ = "MIT"
-__version__ = "0.1"
-__email__ = "desai.sanket12@outlook.com"
+__version__ = "0.2"
+__email__ = "desai.sanket12@gmail.com"
 '''
 EdgeRTopTagsParser - class to parse the top tag results as given output by edgeR package. ProcessHairpin Function
 Format Description - as shown in the example below (10 columns including the ID repeated twice at every record)
@@ -64,6 +64,14 @@ class EdgeRTopTagsParser(object):
         generecords=self.get_toptag_records_as_npmatrix_for_gene(gene)
         return float(np.mean(generecords[range(len(generecords)),5].astype(np.float)))
 
+    def get_pvalue_significant_gene_average_logfc_map(self, pvalthresh=0.05):
+        psigtoptags=self.get_pvalue_significant_toptags_as_npmatrix(pvalthresh)
+        psiggenes=list(np.unique( psigtoptags[range(len(psigtoptags)),3] ))
+        psig_gene_avglfc_map={}
+        for g in psiggenes:
+            psig_gene_avglfc_map[g]=self.get_gene_average_logfc(g)
+        return psig_gene_avglfc_map
+
     def get_fdr_significant_gene_average_logfc(self, gene, fdrthresh=0.05):
         generecords=self.get_toptag_records_as_npmatrix_for_gene(gene)
         return float(np.mean(generecords[ generecords[range(len(generecords)),9] <= fdrthresh ,5]))
@@ -82,13 +90,20 @@ class EdgeRTopTagsParser(object):
         genes=self.get_unique_genes()
         gene_avlfc={}
         for g in genes:
-            av=self.get_gene_average_logfc(g)
+            av= float(self.get_gene_average_logfc(g))
+            gene_avlfc[g]=av
+        return gene_avlfc
+
+    def get_gene_average_logfc_map(self, genes):
+        gene_avlfc={}
+        for g in genes:
+            av= float(self.get_gene_average_logfc(g))
             gene_avlfc[g]=av
         return gene_avlfc
 
     def get_gene_average_logfc_score_map(self):
-        gene_avlfc=self.get_gene_average_logfc_map()
-        avglfcnp=np.array(gene_avlfc.values()).astype(float)
+        gene_avlfc=self.get_gene_average_logfc_map(self.get_unique_genes())
+        avglfcnp=np.array(  list(gene_avlfc.values()) ).astype(float)
         avglfcnp_std= (avglfcnp - avglfcnp.min(axis=0)) / (avglfcnp.max(axis=0) - avglfcnp.min(axis=0))
         avglfcnp_scaled = avglfcnp_std * (10 - 0) + 0
         avglfcnp_scaled=10-avglfcnp_scaled #inverse is true

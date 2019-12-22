@@ -6,8 +6,8 @@ import sys
 
 __author__ = "Sanket S Desai"
 __license__ = "MIT"
-__version__ = "0.1"
-__email__ = "desai.sanket12@outlook.com"
+__version__ = "0.2"
+__email__ = "desai.sanket12@gmail.com"
 
 class MethylationParser(object):
     def __init__(self, efn):
@@ -49,7 +49,7 @@ class MethylationParser(object):
 
     def get_gene_methylation_score_map(self):
         gemap=self.get_gene_betavalue_map()
-        gexpnp=np.array(gemap.values()).astype(float)
+        gexpnp=np.array(list(gemap.values())).astype(float)
         gexpnp_std= (gexpnp - gexpnp.min(axis=0)) / (gexpnp.max(axis=0) - gexpnp.min(axis=0))
         gexpnp_scaled = gexpnp_std * (10 - 0) + 0
         #gexpnp_scaled=10-avglfcnp_scaled #inverse is true
