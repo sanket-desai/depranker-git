@@ -21,14 +21,23 @@ class DepRanker(object):
         roast=RoastParser(roastfn)
         self.roast_ranks_= self.get_gene_rank_map(roast.get_gene_rank_map(),-1)
         self.roast_scores_=roast.get_gene_roast_score_map()
-        self.toptags_ranks_= self.get_gene_rank_map(toptags.get_gene_average_logfc_map(), -1)
+        psig_gene_avglfc_map=toptags.get_pvalue_significant_gene_average_logfc_map(0.05)
+        toptag_rank_input_gene_avglfc={}
+        topgenes=[] #top genes by roast defined as down/mingene 3/pval sorted and toptag pval significant 0.05
+        for g in self.roast_ranks_.keys():
+            try:
+                toptag_rank_input_gene_avglfc[g]=psig_gene_avglfc_map[g]
+                topgenes.append(g)
+            except KeyError:
+                pass
+        #self.toptags_ranks_= self.get_gene_rank_map(toptags.get_pvalue_significant_gene_average_logfc_map(0.05), -1)
+        self.toptags_ranks_= self.get_gene_rank_map(toptag_rank_input_gene_avglfc, -1)
         self.toptags_scores_=toptags.get_gene_average_logfc_score_map()
         expression=ExpressionParser(exprsfn)
         copynumber=CopyNumberVariationParser(cnvfn)
-        topgenes=roast.get_roast_genes()
+        #topgenes=roast.get_roast_genes()
         topgenesexpmap=expression.get_gene_expression_map(topgenes)
         topgenescnvmap=copynumber.get_gene_cnv_map(topgenes)
-        print("entering gene expression and cnv")
         self.expression_ranks_=self.get_gene_rank_map(topgenesexpmap, 1)
         self.expression_scores_=self.get_gene_score_map(topgenesexpmap,1)
         self.cnv_ranks_=self.get_gene_rank_map(topgenescnvmap, 1)
@@ -153,7 +162,7 @@ class DepRanker(object):
         for g in self.genes_:
             try:
                 #print([g,self.roast_scores_[g],self.toptags_scores_[g],self.expression_scores_[g],self.cnv_scores_[g],self.get_gene_impact_score(g)])
-                fo.write("%s\t%f\t%f\t%f\t%f\t%f\n" %(g,self.roast_ranks_[g],self.toptags_ranks_[g],self.expression_ranks_[g],self.cnv_ranks_[g],self.get_gene_rank_impact_score(g)))
+                fo.write("%s\t%f\t%f\t%f\t%f\t%f\n" %(g, round(self.roast_ranks_[g],2),round(self.toptags_ranks_[g],2),round(self.expression_ranks_[g],2),round(self.cnv_ranks_[g],2),round(self.get_gene_rank_impact_score(g),2)))
             except KeyError as ke:
                 print("Impact Rank Score cannot be computed for gene: %s" %(g))
         fo.close()
@@ -161,7 +170,7 @@ class DepRanker(object):
 def main():
     aparser=argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description= '''DepRanker: A gene impact score calculator (prioritization method) for RNAi / CRISPR screen results
 Developed by Dutt lab
-Version v0.1.0''')
+Version v0.2.0''')
     aparser.add_argument('-roast', action='store', dest='roast_result_file', help='Roast result file')
     aparser.add_argument('-toptags', action='store', dest='edgeR_toptags_file', help='EdgeR toptags result file')
     aparser.add_argument('-exprs', action='store', dest='expression_file', help='Gene expression file')

@@ -64,6 +64,14 @@ class EdgeRTopTagsParser(object):
         generecords=self.get_toptag_records_as_npmatrix_for_gene(gene)
         return float(np.mean(generecords[range(len(generecords)),5].astype(np.float)))
 
+    def get_pvalue_significant_gene_average_logfc_map(self, pvalthresh=0.05):
+        psigtoptags=self.get_pvalue_significant_toptags_as_npmatrix(pvalthresh)
+        psiggenes=list(np.unique( psigtoptags[range(len(psigtoptags)),3] ))
+        psig_gene_avglfc_map={}
+        for g in psiggenes:
+            psig_gene_avglfc_map[g]=self.get_gene_average_logfc(g)
+        return psig_gene_avglfc_map
+
     def get_fdr_significant_gene_average_logfc(self, gene, fdrthresh=0.05):
         generecords=self.get_toptag_records_as_npmatrix_for_gene(gene)
         return float(np.mean(generecords[ generecords[range(len(generecords)),9] <= fdrthresh ,5]))
