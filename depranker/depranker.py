@@ -21,24 +21,11 @@ class DepRanker(object):
         roast=RoastParser(roastfn)
         self.roast_ranks_= self.get_gene_rank_map(roast.get_gene_rank_map(minshrnarepr, "Down", "pvalue"),-1)
         self.roast_scores_=roast.get_gene_roast_score_map()
-        #psig_gene_avglfc_map=toptags.get_pvalue_significant_gene_average_logfc_map(0.05)
-        #toptag_rank_input_gene_avglfc={}
-        #topgenes=[] #top genes by roast defined as down/mingene 3/pval sorted and toptag pval significant 0.05
         topgenes=list(self.roast_ranks_.keys())
-        #for g in self.roast_ranks_.keys():
-        #    try:
-        #        toptag_rank_input_gene_avglfc[g]=psig_gene_avglfc_map[g]
-        #        topgenes.append(g)
-        #    except KeyError:
-        #        pass
-        #self.toptags_ranks_= self.get_gene_rank_map(toptags.get_pvalue_significant_gene_average_logfc_map(0.05), -1)
-        #print(topgenes)
         self.toptags_ranks_=self.get_gene_rank_map( toptags.get_gene_average_logfc_map(topgenes), -1)
-        #self.toptags_ranks_= self.get_gene_rank_map(toptag_rank_input_gene_avglfc, -1)
         self.toptags_scores_=toptags.get_gene_average_logfc_score_map()
         expression=ExpressionParser(exprsfn)
         copynumber=CopyNumberVariationParser(cnvfn)
-        #topgenes=roast.get_roast_genes()
         topgenesexpmap=expression.get_gene_expression_map(topgenes)
         topgenescnvmap=copynumber.get_gene_cnv_map(topgenes)
         self.expression_ranks_=self.get_gene_rank_map(topgenesexpmap, 1)
@@ -46,27 +33,20 @@ class DepRanker(object):
         self.cnv_ranks_=self.get_gene_rank_map(topgenescnvmap, 1)
         self.cnv_scores_=self.get_gene_score_map(topgenescnvmap,1)
         self.genes_=topgenes
-#        if len(self.roast_scores_)!=len(self.expression_scores_) or len(self.toptags_scores_) != len(self.roast_scores_) or len(self.roast_scores_) != len(cnv_scores_) :
-#            print("DepRanker error: please contact the author!!")
-#            sys.exit()
 
-    #if direction 1, defined as lower is lower, elif direction -1, lower is higher: In general higher ranks are better
     def get_gene_rank_map(self, gene_value_map, direction=1):
         grmap={}
         gvals=np.array(list(gene_value_map.values())).astype(float)
-        #print(gvals)
         if direction==1:
             gvalranks=rankdata(gvals)
             ind=0
             for g in gene_value_map.keys():
-                #grmap[g]=float(gvalranks[ind])
                 grmap[g]=gvalranks[ind]
                 ind=ind+1
         elif direction==-1:
             gvalranks=rankdata(- gvals)
             ind=0
             for g in gene_value_map.keys():
-                #grmap[g]=float(gvalranks[ind])
                 grmap[g]=gvalranks[ind]
                 ind=ind+1
         else:
